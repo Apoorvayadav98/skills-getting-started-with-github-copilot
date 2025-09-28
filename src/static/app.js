@@ -12,28 +12,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>'; // Clear dropdown
 
-      // Populate activities list
+      // Collect dropdown options first
+      const options = [];
+      Object.entries(activities).forEach(([name]) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        options.push(option);
+      });
+      options.forEach((option) => activitySelect.appendChild(option));
+
+      // Render activity cards
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Participants section as a bulleted list
+        let participantsHTML = `
+          <div class="activity-participants">
+            <h5>Participants</h5>
+            ${
+              details.participants.length > 0
+                ? `<ul>${details.participants.map((p) => `<li>${p}</li>`).join("")}</ul>`
+                : `<span class="no-participants">No participants yet.</span>`
+            }
+          </div>
+        `;
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsHTML}
         `;
 
         activitiesList.appendChild(activityCard);
-
-        // Add option to select dropdown
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        activitySelect.appendChild(option);
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
@@ -84,3 +102,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
 });
+
